@@ -4,23 +4,23 @@ import { Button } from '../components/Button';
 import { Container } from '../components/Container';
 import { Form } from '../components/Form';
 import { login } from '../configs/services/auth.service';
-import { getToken } from '../configs/utils/getToken';
+import { getDataHeaders } from "../configs/utils/getDataHeaders";
 
 export const Login = () => {
 	const [checked, setChecked] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const navigate = useNavigate();
-	const token = getToken();
+	const dataHeaders = getDataHeaders();
 
 	async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
 
-		const data = {
+		const dataBody = {
 			email: e.currentTarget.email.value,
 			password: e.currentTarget.password.value,
 		};
 		setLoading(true);
-		const response = await login(data);
+		const response = await login(dataBody);
 		setLoading(false);
 
 		if (!response.success) {
@@ -28,22 +28,26 @@ export const Login = () => {
 			return;
 		}
 
+		const dataHeaders = {
+			token: response.data?.token,
+			studentId: response.data?.studentId,
+		};
+
 		if (checked) {
-			localStorage.setItem('token', response.data!.token);
+			localStorage.setItem('dataHeaders', JSON.stringify(dataHeaders));
 		}
-		sessionStorage.setItem('token', response.data!.token);
+		sessionStorage.setItem('dataHeaders', JSON.stringify(dataHeaders));
 
 		alert(response.message);
 		navigate('/home');
 	}
 
 	useEffect(() => {
-		if (token) {
+		if (dataHeaders?.token) {
 			navigate('/home');
 			return;
 		}
-	}, [ token, navigate ] );
-	
+	}, [dataHeaders?.token, navigate]);
 
 	return (
 		<Container $fullHeight>

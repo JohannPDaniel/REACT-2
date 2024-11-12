@@ -17,5 +17,6 @@ export const assessmentMock: Assessment[] = Array.from({ length: 20 }, (_, index
 	title: `Avaliação ${index + 1}`,
 	description: `Descrição ${index + 1}`,
 	grade: index * 2,
+	studentId: "",
 	createdAt: new Date(),
 }));

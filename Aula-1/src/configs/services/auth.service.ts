@@ -4,7 +4,7 @@ import { api, ResponseApi } from './api.service';
 
 export async function login(data: LoginRequest) {
 	try {
-		const response = await api.post<ResponseApi<{ token: string }>>(
+		const response = await api.post<ResponseApi<{ token: string, studentId: string }>>(
 			'/login',
 			data
 		);

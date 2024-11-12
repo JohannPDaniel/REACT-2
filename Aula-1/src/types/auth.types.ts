@@ -11,3 +11,5 @@ export interface SignUpRequest {
 	age?: number;
 	cpf: string;
 }
+
+

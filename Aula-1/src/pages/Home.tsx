@@ -1,56 +1,60 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container } from '../components/Container';
 import { UpsertModal } from '../components/Modal/UpsertModal';
 import { TableAssessments } from '../components/Table/Table';
 import { getAssessment } from '../configs/services/assessment.service';
-import { getToken } from '../configs/utils/getToken';
 import { Assessment } from '../types/assessment.types';
 import { Button } from './../components/Button';
+import { getDataHeaders } from '../configs/utils/getDataHeaders';
 
 export const Home = () => {
 	const [listAssessments, setListAssessments] = useState<Assessment[]>([]);
 	const [loading, setLoading] = useState(false);
 	const [openModal, setOpenModal] = useState(false);
 	const navigate = useNavigate();
-	const token = getToken();
-
-	useEffect(() => {
-		if (!token) {
-			navigate('/');
-			return;
-		}
-		async function fetchAssessment() {
-			setLoading(true);
-			const response = await getAssessment(token!);
-			setLoading(false);
-
-			if (!response.success) {
-				if (response.message) {
-					localStorage.removeItem('token');
-					sessionStorage.removeItem('token');
-					alert(response.message);
-					navigate('/');
-					return;
-				}
-				alert(response.message);
-				return;
-			}
-
-			setListAssessments(response.data || []);
-		}
-		fetchAssessment();
-	}, [token, navigate]);
+	const dataHeaders = getDataHeaders();
 
 	function handleToggleUpsertModal() {
 		setOpenModal(!openModal);
 	}
 
 	function logout() {
-		localStorage.removeItem('token');
-		sessionStorage.removeItem('token');
+		localStorage.removeItem('dataHeaders');
+		sessionStorage.removeItem('dataHeaders');
 		navigate('/');
 	}
+
+	const fetchAssessments = useCallback(async () => {
+		setLoading(true);
+		const response = await getAssessment(
+			dataHeaders!.token,
+			dataHeaders!.studentId
+		);
+		setLoading(false);
+
+		if (!response.success) {
+			if (response.message) {
+				localStorage.removeItem('dataHeaders');
+				sessionStorage.removeItem('dataHeaders');
+				alert(response.message);
+				navigate('/');
+				return;
+			}
+			alert(response.message);
+			return;
+		}
+		setListAssessments(response.data || []);
+	}, [dataHeaders?.token, navigate]);
+
+	useEffect(() => {
+		if (!dataHeaders?.token) {
+			navigate('/');
+			return;
+		}
+
+		fetchAssessments();
+	}, [dataHeaders?.token, navigate, fetchAssessments]);
 
 	return (
 		<>
@@ -76,7 +80,8 @@ export const Home = () => {
 			</Container>
 			<UpsertModal
 				isOpen={openModal}
-				onClose={handleToggleUpsertModal}
+				onClose={ handleToggleUpsertModal }
+				onSave={() => console.log("Chamou ...")}
 			/>
 		</>
 	);
