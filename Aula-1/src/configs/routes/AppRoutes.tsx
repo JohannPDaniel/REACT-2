@@ -28,3 +28,5 @@ function AppRoutes() {
 }
 
 export default AppRoutes;
+// instale o React-Router-Dom com o comando: npm install react-router-dom
+
